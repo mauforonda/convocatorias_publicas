@@ -107,6 +107,15 @@ def format_results(results):
     
     return df
 
+def update_indice(ayer, df):
+    
+    este_mes = ayer.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
+    indice = pd.read_csv('indice.csv', parse_dates=['mes'])
+    if (indice.mes == este_mes.strftime('%Y-%m-%d')).sum() > 0:
+        indice.loc[indice.mes == este_mes.strftime('%Y-%m-%d'), 'convocatorias'] = df.shape[0]
+    else:
+        indice.loc[-1] = [este_mes, df.shape[0]]
+    indice.to_csv('indice.csv', index=False, date_format='%Y-%m-%d')
 
 cookies = {
     'cpttxhHQrES2eWopmC6e+yrKFa1G': 'v1RbeGSQSDF6E'
@@ -163,10 +172,12 @@ all_results = []
 total_results = 0
 
 search_all()
-df = format_results(all_results)
+if len(all_results) > 0:
+    df = format_results(all_results)
 
-filename = 'data/{}.csv'.format(ayer.strftime('%Y%m'))
-if os.path.exists(filename):
-    old = pd.read_csv(filename, parse_dates=['Fecha Presentación', 'Fecha Publicación', 'Fecha Adjudicación / Desierta'])
-    df = pd.concat([old, df])
-df.to_csv(filename, index=False)
+    filename = 'data/{}.csv'.format(ayer.strftime('%Y%m'))
+    if os.path.exists(filename):
+        old = pd.read_csv(filename, parse_dates=['Fecha Presentación', 'Fecha Publicación', 'Fecha Adjudicación / Desierta'])
+        df = pd.concat([old, df])
+    df.sort_values(['Fecha Publicación', 'CUCE']).to_csv(filename, index=False)
+    update_indice(ayer, df)

@@ -2,6 +2,7 @@ name: Update
 on:
   schedule:
     - cron: '30 4 * * *'
+  workflow_dispatch:
 jobs:
   update:
     name: update
@@ -24,7 +25,7 @@ jobs:
           python update/update.py
       - name: commit
         run: |
-          git config --global user.email circoes-bot@example.com"
-          git config --global user.name "circoes-bot"
+          git config --global user.email "convocatorias-bot@example.com"
+          git config --global user.name "convocatorias-bot"
           git add -A
-          git diff --quiet && git diff --staged --quiet || (git commit -m "[ci] actualización"; git push -q "https://$GH_TOKEN@github.com/mauforonda/circoes.git" master)
+          git diff --quiet && git diff --staged --quiet || (git commit -m "[ci] $(date -d 'yesterday' +%Y-%m-%d)"; git push -q "https://$GH_TOKEN@github.com/mauforonda/convocatorias_publicas.git" master)
